@@ -1,0 +1,20 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* styles.css */
+.t-succ-row td {
+    color: white;
+    border: 1px solid #333; /* Solid border with a dark color for contrast */
+    padding: 8px; /* Adds some space around the content inside the cell */
+}
+
+.t-succ-row th {
+    color: white;
+    border-bottom: 2px solid #333; /* A thicker border for the bottom to emphasize the row */
+    padding: 8px; /* Adds some space around the content inside the cell */
+}
+
+   
+   

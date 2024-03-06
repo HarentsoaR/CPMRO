@@ -1,0 +1,10 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS in your global styles or a wrapping component */
+.react-flow-marker-end {
+    fill: #1111; /* Arrowhead color */
+   }
+   
