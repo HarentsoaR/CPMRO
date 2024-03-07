@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 // import TransposedTable from './components/TransportedTable';
 // import { TaskData } from './types/TaskData';
 // import ReactFlow, { Controls, MiniMap } from 'react-flow-renderer';
@@ -11,50 +11,24 @@ import CercleD from './components/CanvasComponents/CercleD';
 import HorizontalArrow from './components/CanvasComponents/HorizontalArrow';
 import CercleF from './components/CanvasComponents/CercleF';
 import CercleObject from './components/CanvasComponents/CercleObject';
+import { Grid } from '@mui/material';
 
-const App: React.FC = () => {
-  // const data: TaskData[] = [
-  //   { task: 'A', duration: 2, anteriorTask: '-' },
-  //   { task: 'B', duration: 5, anteriorTask: 'A' },
-  //   { task: 'C', duration: 6, anteriorTask: 'B' },
-  //   { task: 'D', duration: 9, anteriorTask: 'C' },
-  //   { task: 'E', duration: 5, anteriorTask: 'D' },
-  //   { task: 'F', duration: 8, anteriorTask: 'G' },
-  //   { task: 'G', duration: 4, anteriorTask: 'E' },
-  //   { task: 'H', duration: 1, anteriorTask: 'G' },
-  //   { task: 'I', duration: 1, anteriorTask: 'H' },
-  //   { task: 'J', duration: 1, anteriorTask: 'K' },
-  //   { task: 'K', duration: 1, anteriorTask: 'H' },
-  //   { task: 'L', duration: 1, anteriorTask: 'K' },
-  // ];
+interface AppProps {
+  successors: string[];
+}
 
-  // // Transform data into nodes and edges
-  // const nodes = data.map((task) => ({
-  //   id: task.task,
-  //   type: 'default',
-  //   data: { label: task.task },
-  //   position: { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight },
-  // }));
-
-  // const edges = data.map((task) => {
-  //   if (task.anteriorTask === '-') return null; // Skip the first task
-  //   return {
-  //     id: `${task.anteriorTask}-${task.task}`,
-  //     source: task.anteriorTask,
-  //     target: task.task,
-  //     type: 'default',
-  //     style: {
-  //       stroke: '#ffff',
-  //       strokeWidth: 2,
-  //       markerEnd: 'url(#arrowhead)' // Use the markerEnd property with a URL referencing an SVG marker
-  //     },
-  //   };
-  // }).filter(edge => edge !== null); // Remove null values
-  // State for tasks, durations, and dependencies
+const App: React.FC<AppProps> = () => {
   const [tasks, setTasks] = useState(['a', 'b', 'c', 'd', 'e']);
   const [durations, setDurations] = useState([1, 2, 3, 4, 5]);
   const [dependencies, setDependencies] = useState(['-', 'a', 'b', 'b', 'c']);
   const canvasRef = useRef(null);
+  const [successors, setSuccessors] = useState([]);
+  const [sortedTasks, setSortedTasks] = useState<string[]>([]);
+
+  useEffect(() => {
+    const sorted = sortTasksBasedOnDependencies(tasks, dependencies);
+    setSortedTasks(sorted);
+  }, [tasks, dependencies]);
 
   // Function to add a new column
   const onAddColumn = () => {
@@ -73,58 +47,115 @@ const App: React.FC = () => {
   };
 
   const onStart = () => {
-    console.log('Starting CPM process...');
-    // Example logic to draw the CPM graph based on your table data
-    // This is a placeholder for your actual drawing logic
-    // if (canvasRef.current) {
-    //   const canvas = canvasRef.current;
-    //   const ctx = canvas.getContext('2d');
-    //   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-
-    //   // Example drawing logic
-    //   ctx.beginPath();
-    //   ctx.moveTo(10, 10);
-    //   ctx.lineTo(100, 100);
-    //   ctx.stroke();
-
-    //   // Add more drawing logic based on your table data
-    // }
- };
+    console.log("Start")
+    const newSuccessors = getSuccesseure(tasks, dependencies);
+    setSuccessors(newSuccessors);
+    const sorted = sortTasksBasedOnDependencies(tasks, dependencies);
+    console.log(sorted)
+  }
   const onReplay = () => {
     console.log('Replaying CPM process...');
   };
 
+  function getSuccesseure(tasks, dependencies) {
+    // Initialize successors as an array of arrays, with each inner array representing successors for a task
+    let successors = tasks.map(() => []);
 
+    dependencies.forEach((dependency, index) => {
+      let predecessors = dependency.split(',');
+      predecessors.forEach(predecessor => {
+        let predecessorIndex = tasks.indexOf(predecessor);
+        if (predecessorIndex !== -1) {
+          // If the predecessor is found in the tasks array, add the current task to its successors
+          successors[predecessorIndex].push(tasks[index]);
+        }
+      });
+    });
+
+    // Convert each successors array to a string for display
+    successors = successors.map(successor => successor.length > 0 ? successor.join(',') : "FIN");
+
+    return successors;
+  }
+
+  function sortTasksBasedOnDependencies(tasks: string[], dependencies: string[]): string[] {
+    return tasks.sort((a, b) => {
+      const indexA = tasks.indexOf(a);
+      const indexB = tasks.indexOf(b);
+      const dependencyA = dependencies[indexA];
+      const dependencyB = dependencies[indexB];
+      const successorA = successors[indexA]; // Assuming successors is an array parallel to tasks
+      const successorB = successors[indexB];
+
+      // Prioritize tasks with '-' as t.ant
+      if (dependencyA === '-' && dependencyB !== '-') {
+        return -1;
+      } else if (dependencyB === '-' && dependencyA !== '-') {
+        return 1;
+      }
+
+      // Prioritize tasks with 'FIN' as t.succ
+      if (successorA === 'FIN' && successorB !== 'FIN') {
+        return 1;
+      } else if (successorB === 'FIN' && successorA !== 'FIN') {
+        return -1;
+      }
+
+      // If both conditions are met or not applicable, keep original order
+      return 0;
+    });
+  }
+
+  function calculateGridPositions(tasks) {
+    const totalGridColumns = 12; // Material-UI Grid default
+    const columnsUsedByTasks = tasks.length * 2; // Each task occupies 2 columns
+    const taskColumnWidth = totalGridColumns / columnsUsedByTasks;
+
+    return tasks.map((task, index) => {
+      const xStart = taskColumnWidth * (index + 1);
+      const xEnd = xStart + taskColumnWidth;
+      return { xStart, xEnd };
+    });
+  }
+
+
+  const start = [100, 50]; // Adjust based on CercleD's position
+  const end = [300, 50];
   return (
     <>
-    <div className='row'>
-    <ActionButtons onAddColumn={onAddColumn} onRemoveColumn={onRemoveColumn} onStart={onStart} onReplay={onReplay} />
-      <TaskTable
-        tasks={tasks}
-        durations={durations}
-        dependencies={dependencies}
-        setTasks={setTasks}
-        setDurations={setDurations}
-        setDependencies={setDependencies}
-      />
-      {/* <CanvasComponent tasks={tasks} durations={durations} dependencies={dependencies} /> */}
-      {/* <TransposedTable data={data} />
-      <div style={{ width: '100vw', height: '100vh' }}>
-        <ReactFlow nodes={nodes} edges={edges}>
-        <MiniMap />
-        <Controls />
-        </ReactFlow>
-      </div> */}
+      <div className='row px-6'>
+        <ActionButtons onAddColumn={onAddColumn} onRemoveColumn={onRemoveColumn} onStart={onStart} onReplay={onReplay} />
+        <TaskTable
+          tasks={tasks}
+          durations={durations}
+          dependencies={dependencies}
+          successors={successors} // Pass the successors state
+          setTasks={setTasks}
+          setDurations={setDurations}
+          setDependencies={setDependencies}
+        />
       </div>
-      <div style={{ width: '90vw', height: '100vh' }}>
-      <HorizontalArrow xStart={70} xEnd={200} y={100} arrowHeadSize={20} tacheText="A" dureeText="5" />
-      <div className='row'>
+      <div className='flex justify-around'>
       <CercleD />
-      <CercleF />
-      <CercleObject taskNumber={1} taskName="A" />
-      <CercleObject taskNumber={2} taskName="B" />
-      <CercleObject taskNumber={3} taskName="C" /></div>
+      <CercleObject taskName={"A"} order={1} />
       </div>
+      {/* <Grid container>
+        <Grid item xs={1}>
+          <CercleD />
+        </Grid>
+        <Grid item xs={10}>
+          <Grid container>
+            {tasks.map((taskName, index) => (
+              <Grid item xs={2} className='flex justify-center'>
+                <CercleObject key={index} taskName={taskName} order={index + 1} />
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+        <Grid item xs={1} className='flex justify-end'>
+          <CercleF />
+        </Grid>
+      </Grid> */}
     </>
   );
 };

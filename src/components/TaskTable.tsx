@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 interface TaskTableProps {
     tasks: string[];
     durations: number[];
     dependencies: string[];
+    successors: string[];
     setTasks: (tasks: string[]) => void;
     setDurations: (durations: number[]) => void;
     setDependencies: (dependencies: string[]) => void;
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ tasks, durations, dependencies, setTasks, setDurations, setDependencies }) => {
+const TaskTable: React.FC<TaskTableProps> = ({ tasks, durations, dependencies, successors, setTasks, setDurations, setDependencies }) => {
     const [editing, setEditing] = useState({ row: null, col: null });
+
 
     const handleEdit = (row: number, col: number) => {
         setEditing({ row, col });
@@ -97,6 +99,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, durations, dependencies, s
                             </TableCell>
                         ))}
                     </TableRow>
+                    <TableRow>
+                        <TableCell>Tâches successeures</TableCell>
+                        {successors.map((successor, index) => (
+                            <TableCell key={index}>{successor}</TableCell>
+                        ))}
+                    </TableRow>
+
                 </TableBody>
             </Table>
         </TableContainer>

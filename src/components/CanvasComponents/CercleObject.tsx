@@ -1,8 +1,15 @@
-// CercleObject.js or CercleObject.tsx
-import  { useRef, useEffect } from 'react';
+// CercleObject.tsx
+import { useRef, useEffect } from 'react';
 
-const CercleObject = ({ taskNumber, taskName }) => {
- const canvasRef = useRef(null);
+
+interface CercleObjectProps {
+  taskName: string;
+  order: number;
+ }
+
+const CercleObject: React.FC<CercleObjectProps> = ({ taskName, order }) => {
+ const canvasRef = useRef<HTMLCanvasElement>(null);
+
 
  useEffect(() => {
     const canvas = canvasRef.current;
@@ -10,7 +17,7 @@ const CercleObject = ({ taskNumber, taskName }) => {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
-      // Draw a circle with task number inside
+      // Adjust position based on orderIndex for a simple example
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const radius = 30;
@@ -20,16 +27,16 @@ const CercleObject = ({ taskNumber, taskName }) => {
       ctx.fill();
       ctx.closePath();
 
-      // Draw task number inside the circle
+      // Draw task name inside the circle
       ctx.font = '15px Arial';
       ctx.fillStyle = 'white';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(taskNumber, centerX, centerY);
+      ctx.fillText(taskName, centerX, centerY);
     }
- }, [taskNumber, taskName]); // Depend on taskNumber and taskName to re-draw when they change
+ }, [taskName, order]); // Depend on taskName and orderIndex
 
- return <canvas ref={canvasRef} width={200} height={200} />;
+ return <canvas ref={canvasRef} width={80} height={80} />;
 };
 
 export default CercleObject;

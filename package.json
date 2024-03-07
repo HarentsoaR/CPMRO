@@ -19,7 +19,8 @@
     "react-canvas-draw": "^1.2.1",
     "react-dom": "^18.2.0",
     "react-flow-renderer": "^10.3.17",
-    "react-table": "^7.8.0"
+    "react-table": "^7.8.0",
+    "react-xarrows": "^2.0.2"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.52",

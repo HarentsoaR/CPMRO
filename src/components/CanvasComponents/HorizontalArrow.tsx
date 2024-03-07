@@ -30,13 +30,13 @@ const HorizontalArrow = ({ xStart, xEnd, y, arrowHeadSize, tacheText, dureeText 
       // Draw the text
       ctx.font = '15px Calibri, Geneva, Arial';
       ctx.fillStyle = 'rgba(1,1,1,1)';
-      const textX = xStart + ((xEnd - xStart) / 2);
+      const textX = xStart + ((xEnd - xStart) / 3);
       ctx.fillText(tacheText, textX, y - 7);
       ctx.fillText(dureeText, textX, y + 17);
     }
  }, [xStart, xEnd, y, arrowHeadSize, tacheText, dureeText]);
 
- return <canvas ref={canvasRef} width={200} height={200} />;
+ return <canvas ref={canvasRef} width={800} height={150} />;
 };
 
 export default HorizontalArrow;

@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react';
 const CercleD = () => {
  const canvasRef = useRef(null);
 
+
  useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -30,7 +31,7 @@ const CercleD = () => {
     }
  }, []);
 
- return <canvas ref={canvasRef} width={200} height={200} />;
+ return <canvas ref={canvasRef} width={80} height={80} />;
 };
 
 export default CercleD;

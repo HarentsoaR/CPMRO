@@ -30,7 +30,7 @@ const CercleF = () => {
     }
  }, []);
 
- return <canvas ref={canvasRef} width={200} height={200} />;
+ return <canvas ref={canvasRef} width={80} height={80} />;
 };
 
 export default CercleF;
